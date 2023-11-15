@@ -1,17 +1,21 @@
 #include "graph.hpp"
-#include <algorithm>
 
 Grafo::Grafo(int tamanho) {
     this->tamanho = tamanho;
     this->nos = new No[tamanho];
 }
 
-
 No* Grafo::getNos() {
+    if (this->nos == nullptr) {
+        // Lida com a situação de ponteiro nulo, lança uma exceção ou realiza alguma ação apropriada.
+    }
     return this->nos;
 }
 
 void Grafo::setTamanho(int novoTamanho) {
+    if (novoTamanho <= 0) {
+        throw std::invalid_argument("O tamanho do grafo deve ser positivo.");
+    }
     this->tamanho = novoTamanho;
 }
 
@@ -19,6 +23,38 @@ int Grafo::getTamanho() {
     return this->tamanho;
 }
 
+void Grafo::insertionSort(int right, int left) {
+    for (int i = left + 1; i <= right; i++) {
+        No current = this->nos[i];
+        int j = i - 1;
+
+        while (j >= left &&
+               (this->nos[j].getCor() > current.getCor() ||
+                (this->nos[j].getCor() == current.getCor() &&
+                 this->nos[j].getRotulo() > current.getRotulo()))) {
+
+          this->nos[j + 1] = this->nos[j];
+          j--;
+        }
+
+        this->nos[j + 1] = current;
+    }
+}
+
+void Grafo::insertionSort() {
+  for (int i = 1; i < tamanho; i++) {
+    No current = this->nos[i];
+    int j = i - 1;
+
+    while (j >= 0 && (this->nos[j].getCor() > current.getCor() || 
+                     (this->nos[j].getCor() == current.getCor() && this->nos[j].getRotulo() > current.getRotulo()))) {
+      this->nos[j + 1] = this->nos[j];
+      j--;
+    }
+
+    this->nos[j + 1] = current;
+  }
+}
 
 void Grafo::bubbleSort() {
     for (int i = 0; i < tamanho - 1; i++) {
@@ -35,7 +71,6 @@ void Grafo::bubbleSort() {
         }
     }
 }
-
 
 void Grafo::selectionSort() {
     for (int i = 0; i < tamanho - 1; i++) {
@@ -59,23 +94,6 @@ void Grafo::selectionSort() {
     }
 }
 
-
-void Grafo::insertionSort() {
-    for (int i = 1; i < tamanho; i++) {
-        No current = nos[i];
-        int j = i - 1;
-
-        while (j >= 0 && (nos[j].getCor() > current.getCor() ||
-                          (nos[j].getCor() == current.getCor() && nos[j].getRotulo() > current.getRotulo()))) {
-            nos[j + 1] = nos[j];
-            j--;
-        }
-
-        nos[j + 1] = current;
-    }
-}
-
-
 int Grafo::partition(int down, int up) {
     No pivot = nos[up];
     int i = down - 1;
@@ -95,12 +113,12 @@ int Grafo::partition(int down, int up) {
 }
 
 void Grafo::quickSort(int down, int up) {
-    if (down < up) {
-        int pi = partition(down, up);
+  if (down < up) {
+    int pi = partition(down, up);
 
-        quickSort(down, pi - 1);
-        quickSort(pi + 1, up);
-    }
+    quickSort(down, pi - 1);
+    quickSort(pi + 1, up);
+  }
 }
 
 
@@ -204,4 +222,66 @@ void Grafo::heapSort() {
         start++;
         end--;
     }
+}
+
+No Grafo::getNoPorRotulo(int label) {
+    for (int i = 0; i < tamanho; i++) {
+        if (this->getNos()[i].getRotulo() == label) {
+            return this->getNos()[i];
+        }
+    }
+    throw std::out_of_range("Rotulo nao encontrado");
+}
+
+void Grafo::combSort() {
+    int n = this->getTamanho();
+    int gap = n; // Inicializa o fator de lacuna
+    bool swapped = true;
+
+    while (gap != 1 || swapped) {
+        // Atualiza o fator de lacuna de acordo com o método recomendado (1.3)
+        gap = (gap * 10) / 13;
+        if (gap < 1) gap = 1;
+
+        swapped = false;
+
+        // Realiza uma passagem pelos nós com o fator de lacuna atual
+        for (int i = 0; i < n - gap; i++) {
+            No& current = this->nos[i];
+            No& next = this->nos[i + gap];
+
+            if (current.getCor() > next.getCor() ||
+                (current.getCor() == next.getCor() && current.getRotulo() > next.getRotulo())) {
+                std::swap(current, next);
+                swapped = true;
+            }
+        }
+    }
+}
+
+bool Grafo::guloso() {
+  for (int i = 0; i < this->getTamanho(); i++) {
+    No* noAtual = &(this->getNos()[i]);
+    int corAtual = noAtual->getCor();
+    int aux = 1;
+
+    while (aux < corAtual) {
+      bool corEncontrada = false;
+
+    for (int j = 0; j < noAtual->getNumVizinhos(); j++) {
+        int rotuloVizinho = noAtual->getVizinhos()[j].getRotulo();;
+        No vizinho = this->getNoPorRotulo(rotuloVizinho);
+
+        if (vizinho.getCor() == aux) {
+          corEncontrada = true;
+          break;
+        }
+      }
+
+      if (!corEncontrada) return false;
+
+      aux++;
+    }
+  }
+  return true;
 }
