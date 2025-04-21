@@ -1,4 +1,3 @@
-readme_sortmethods_complete = """
 # 📊 SortMethods
 
 Projeto acadêmico que implementa múltiplos algoritmos de ordenação aplicados a um grafo com nós coloridos. O grafo é construído a partir de entrada padrão, e os algoritmos de ordenação organizam os nós com base em suas cores. Após a ordenação, é aplicada uma heurística gulosa sobre o grafo.
