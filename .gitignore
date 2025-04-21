@@ -1,0 +1,10 @@
+# Ignorar arquivos de build
+bin/
+obj/
+
+# Ignorar arquivos temporários do sistema
+.DS_Store
+Thumbs.db
+
+# Ignorar arquivos de configuração do VS Code
+.vscode/
